@@ -6,6 +6,7 @@ use cmsUser;
 use Nette\Utils\Html;
 use pdima88\icms2currencyrates\model;
 use pdima88\icms2ext\crudAction;
+use pdima88\icms2ext\GridHelper;
 
 /**
  * @property model $model Model
@@ -14,7 +15,7 @@ class rates extends crudAction
 {
     function getGrid()
     {
-        $select = $this->model->currency->selectCurrencyRates();
+        $select = $this->model->currency->selectCurrencyRates()->columns(['is_primary' => '(type > 0)']);
 
         $grid = [
             'id' => 'currency',
@@ -25,7 +26,11 @@ class rates extends crudAction
 
             'multisort' => true,
             'paging' => 10,
-
+            'actions' => GridHelper::getActions([
+                'edit' => [
+                    'title' => 'Редактировать',
+                ]
+            ]),
             'url' => $this->cms_core->uri_absolute,
             'ajax' => $this->cms_core->uri_absolute,
             'columns' => [
@@ -77,7 +82,11 @@ class rates extends crudAction
                     'align' => 'center'
                 ],
                 'is_visible' => [
-                    'title' => ''
+                    'title' => 'Показывать',
+                    'format' => 'checkbox',
+                    'sort' => true,
+                    'filter' => 'select',
+                    'align' => 'center'
                 ]
 
 

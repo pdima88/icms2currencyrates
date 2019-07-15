@@ -140,7 +140,7 @@ class units extends crudAction {
         return parent::actionAdd();
     }
     
-    public function actionEdit() {
+    public function actionEdit($id = null, $item = null) {
         $this->setForm(self::FORM_UNIT);
         $id = $this->getParam();
         if (!$id) cmsCore::error404();
