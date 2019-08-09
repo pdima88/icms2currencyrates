@@ -65,7 +65,8 @@ class rates extends crudAction
                 'diff' => [
                     'title' => 'Рост/Падение',
                     'sort' => true,
-                    'align' => 'right'
+                    'align' => 'right',
+                    'format' => __NAMESPACE__.'\rates::formatDiff',
                 ],
                 'rate_date' => [
                     'title' => 'Дата',
@@ -102,5 +103,37 @@ class rates extends crudAction
         $this->model->updateRates();
         cmsUser::addSessionMessage('Курсы валют обновлены', 'success');
         $this->redirectBack();
+    }
+
+    public function __construct($controller, array $params)
+    {
+        parent::__construct($controller, $params);
+
+        $this->pageTitle = 'Курсы валют ЦБ РУз';
+        $this->titles['add'] = 'Добавление валюты';
+        $this->titles['edit'] = 'Редактирование валюты';
+        $this->titles['add_rate'] = 'Добавление курса';
+        $this->titles['edit_rate'] = 'Редактирование курса';
+        $this->messages['add'] = 'Валюта добавлена';
+        $this->messages['error_edit_no_item'] = 'Значение не найдено';
+    }
+
+    static function formatDiff($value, $row) {
+        if (!isset($value)) return '';
+        $r = '';
+        if ($value > 0) {
+            $r = '<i class="glyphicon glyphicon-arrow-up" style="color:green"></i> ';
+        } elseif ($value < 0) {
+            $r = '<i class="glyphicon glyphicon-arrow-down" style="color:red"></i> ';
+        }
+        $r.=$value;
+        if (isset($row['rate'])) {
+            $old = $row['rate'] - $value;
+            if ($old) {
+                $perc = $value/$old*100;
+                $r.= ' <span style="font-size: smaller; color:#888">('.(($perc>0)?'+':'').number_format($perc,2).'%)</span>';
+            }
+        }
+        return $r;
     }
 }

@@ -117,7 +117,48 @@ class table_archive extends Table {
         }
     }
 
+    public function refreshCurrencyRates($currency_id) {
+        $rates = $this->fetchRows(['currency_id = ?' => $currency_id], 'rate_date ASC');
 
+        /** @var row_archive $rate */
+        /** @var row_archive $prev */
+        $prev = null;
+        $today = today();
+        $current = null;
+        foreach ($rates as $rate) {
+            if ($prev) {
+                $diff = $rate->rate - $prev->rate;
+                if ($rate->diff != $diff) {
+                    $rate->diff = $diff;
+                    $rate->save();
+                }
+                if ($rate->rate_date != $prev->end_date) {
+                    $prev->end_date = $rate->rate_date;
+                    $prev->save();
+                }
+            }
+            $prev = $rate;
+            if ($rate->rate_date <= $today && (!$rate->end_date || $rate->end_date > $today)) {
+                $current = $rate;
+            }
+        }
+        if ($current) {
+            $currency = table_currency::getById($currency_id);
+            $currency->rate_date = $current->rate_date;
+            $currency->diff = $current->diff;
+            $currency->rate = $current->rate;
+            $currency->save();
+        }
+
+    }
+
+    public function getMinDate() {
+        $a = $this->selectAs('a')->columns([
+            'min_date' => 'MIN(rate_date)'
+        ])->where('rate_date > \'0000-00-00\'')->query()->fetchAll();
+        if (!empty($a)) return $a[0]['min_date'];
+        return null;
+    }
 
 
 }

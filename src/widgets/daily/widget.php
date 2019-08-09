@@ -16,11 +16,13 @@ class widget extends cmsWidget {
     public function run() {
 
 	    $this->setTemplate('daily');
-		$rates = frontend::getInstance()->model->currency->fetchAll(['type = ?' => table_currency::TYPE_CURRENCY_PRIMARY]);
+		$rates = frontend::getInstance()->model->currency->fetchAll(['type = ?' => table_currency::TYPE_CURRENCY_PRIMARY, 'is_visible' => 1]);
+		$units = frontend::getInstance()->model->currency->fetchAll(['type = ?' => table_currency::TYPE_UNITS, 'is_visible' => 1]);
 		//$rates = model::getInstance()->currency->fetchAll(['type = ?' => table_currency::TYPE_CURRENCY_PRIMARY]);
 
         return array(
-			'rates' => $rates
+			'rates' => $rates,
+            'units' => $units,
         );
 
     }

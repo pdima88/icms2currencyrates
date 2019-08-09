@@ -47,11 +47,13 @@ class archive extends crudAction {
                     'title' => 'Курс',
                     'sort' => true,
                     'align' => 'right',
+
                 ],
                 'diff' => [
                     'title' => 'Рост/Падение',
                     'sort' => true,
-                    'align' => 'right'
+                    'align' => 'right',
+                    'format' => __NAMESPACE__.'\rates::formatDiff',
                 ],
 
             ]
@@ -71,6 +73,19 @@ class archive extends crudAction {
         }
 
         return $grid;
+    }
+
+    public function __construct($controller, array $params)
+    {
+        parent::__construct($controller, $params);
+
+        $this->pageTitle = 'Архив курсов валют';
+        $this->titles['add'] = 'Добавление валюты';
+        $this->titles['edit'] = 'Редактирование валюты';
+        $this->titles['add_value'] = 'Добавление курса';
+        $this->titles['edit_value'] = 'Редактирование курса';
+        $this->messages['add'] = 'Валюта добавлена';
+        $this->messages['error_edit_no_item'] = 'Значение не найдено';
     }
 
     public function actionIndex() {

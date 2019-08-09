@@ -104,5 +104,21 @@ class table_currency extends Table
         return array_column($this->getUnitsList(), 'title', 'id');
     }
 
+    public function getUnitsMapWithSuffix() {
+        $select = $this->selectUnits()
+            ->reset(Zend_Db_Select::COLUMNS)
+            ->columns([
+                'id',
+                'name',
+                'suffix'
+            ]);
+        $rows = $select->query()->fetchAll();
+        $arr = [];
+        foreach ($rows as $r) {
+            $arr[$r['id']] = $r['name']. ', '.$r['suffix'];
+        }
+        return $arr;
+    }
+
 
 }
