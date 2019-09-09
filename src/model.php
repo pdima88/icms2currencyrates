@@ -48,6 +48,7 @@ class model extends BaseModel
     }
 
     function updateRates() {
+        $updated = false;
         $rates = $this->getUpdates();
         if ($rates) {
             foreach ($rates as $r) {
@@ -60,17 +61,19 @@ class model extends BaseModel
                     $cur = $this->currency->createRow([
                         'code' => $code
                     ]);
+                    $updated = true;
                 } else {
                     if ($cur->rate_date != date_iso($r['Date'])) {
                         $this->archive->saveCurrencyRate($cur, $date);
+                        $updated = true;
                     }
                 }
 
-                $cur->rate = $r['Rate'];
-                $cur->diff = $r['Diff'];
-                $cur->rate_date = $date;
-                $cur->nominal = $r['Nominal'];
-                $cur->num_code = $r['Code'];
+                if ($cur->rate != $r['Rate']) $cur->rate = $r['Rate'];
+                if ($cur->diff != $r['Diff']) $cur->diff = $r['Diff'];
+                if ($cur->rate_date != $date) $cur->rate_date = $date;
+                if ($cur->nominal != $r['Nominal']) $cur->nominal = $r['Nominal'];
+                if ($cur->num_code != $r['Code']) $cur->num_code = $r['Code'];
                 if (empty($cur->name)) $cur->name = $r['CcyNm_RU'];
                 if (empty($cur->name_uz)) $cur->name_uz = $r['CcyNm_UZC'];
                 if (empty($cur->name_en)) $cur->name_en = $r['CcyNm_EN'];
@@ -79,6 +82,7 @@ class model extends BaseModel
                 $this->archive->saveCurrencyRate($cur);
             }
         }
+        return $updated;
     }
 
     function __get($name)
